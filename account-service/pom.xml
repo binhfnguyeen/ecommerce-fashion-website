@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.heulwen</groupId>
-    <artifactId>Account-Service</artifactId>
+    <artifactId>account-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Account-Service</name>
     <description>Account-Service</description>
