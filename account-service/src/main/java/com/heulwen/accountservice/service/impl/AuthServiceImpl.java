@@ -198,6 +198,7 @@ public class AuthServiceImpl implements AuthService {
                     .issuer("account-service")
                     .issueTime(new Date())
                     .expirationTime(new Date(System.currentTimeMillis() + 3600000))
+                    .claim("userId", user.getId())
                     .claim("email", user.getEmail())
                     .claim("role", user.getRole().name())
                     .build();

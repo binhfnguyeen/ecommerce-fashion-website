@@ -30,3 +30,7 @@ docker-compose.override.yml
 
 # Log files
 *.log
+
+# Media uploads
+**/uploads/
+

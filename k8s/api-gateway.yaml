@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  labels:
+    app: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: api-gateway:v1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: JWT_SECRET
+              value: "isxtj7Ez9VtK5s8+/jWnbGUAzo+/LaHlz8Py+7gT07bwtMSV3yfKDkNvDnfKoevA"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: api-gateway
+  type: LoadBalancer

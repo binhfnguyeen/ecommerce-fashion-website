@@ -1,0 +1,43 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    name: api-gateway
+  jwt:
+    signerkey: ${JWT_SECRET:isxtj7Ez9VtK5s8+/jWnbGUAzo+/LaHlz8Py+7gT07bwtMSV3yfKDkNvDnfKoevA}
+
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: auth-public-route
+              uri: ${ACCOUNT_SERVICE_URL:http://account-service:8080}
+              predicates:
+                - Path=/api/auth/**
+
+            - id: user-secured-route
+              uri: ${ACCOUNT_SERVICE_URL:http://account-service:8080}
+              predicates:
+                - Path=/api/users/**
+
+            - id: product-route
+              uri: ${PRODUCT_SERVICE_URL:http://product-service:8080}
+              predicates:
+                - Path=/api/products/**
+
+            - id: category-route
+              uri: ${PRODUCT_SERVICE_URL:http://product-service:8080}
+              predicates:
+                - Path=/api/categories/**
+
+            - id: payment-route
+              uri: ${PAYMENT_SERVICE_URL:http://payment-service:8080}
+              predicates:
+                - Path=/api/orders/**
+
+            - id: media-route
+              uri: ${MEDIA_SERVICE_URL:http://localhost:8084}
+              predicates:
+                - Path=/api/media/**

@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: account-service
+  labels:
+    app: account-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: account-service
+  template:
+    metadata:
+      labels:
+        app: account-service
+    spec:
+      containers:
+        - name: account-service
+          image: account-service:v1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8081
+          env:
+            - name: POSTGRES_HOST
+              value: "postgres"
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_USER
+              value: "app_user"
+            - name: POSTGRES_PASSWORD
+              value: "123456"
+            - name: JWT_SECRET
+              value: "isxtj7Ez9VtK5s8+/jWnbGUAzo+/LaHlz8Py+7gT07bwtMSV3yfKDkNvDnfKoevA"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: account-service
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8081
+  selector:
+    app: account-service
+  type: ClusterIP
