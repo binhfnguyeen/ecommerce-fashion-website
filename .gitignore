@@ -1,0 +1,32 @@
+# OS files
+.DS_Store
+Thumbs.db
+db.sqlite3
+
+# IDEs and editors
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Maven build outputs
+**/target/
+**/release.properties
+**/pom.xml.releaseBackup
+**/pom.xml.tag
+**/pom.xml.next
+**/pom.xml.versionsBackup
+
+# Maven wrapper jar (can be downloaded automatically)
+**/.mvn/wrapper/maven-wrapper.jar
+
+# Local configurations and credentials
+.env
+docker-compose.override.yml
+
+# Log files
+*.log
