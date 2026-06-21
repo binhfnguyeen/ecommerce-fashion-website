@@ -10,6 +10,7 @@ import com.heulwen.accountservice.mapper.UserMapper;
 import com.heulwen.accountservice.repository.UserRepository;
 import com.heulwen.accountservice.service.UserService;
 import lombok.RequiredArgsConstructor;
+import com.heulwen.accountservice.api.request.UpdateProfileRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +33,41 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         return userMapper.toResponse(user);
+    }
+
+    @Override
+    @Transactional
+    public UserResponse updateProfile(Long userId, UpdateProfileRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        // Update email if changed (check uniqueness)
+        if (request.email() != null && !request.email().equalsIgnoreCase(user.getEmail())) {
+            if (userRepository.existsByEmail(request.email())) {
+                throw new AppException(ErrorCode.EMAIL_EXISTED);
+            }
+        }
+
+        // Change password if requested
+        if (request.newPassword() != null && !request.newPassword().isBlank()) {
+            if (request.currentPassword() == null || request.currentPassword().isBlank()) {
+                throw new AppException(ErrorCode.UNAUTHENTICATED);
+            }
+            if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+                throw new AppException(ErrorCode.UNAUTHENTICATED);
+            }
+            user.changePassword(passwordEncoder.encode(request.newPassword()));
+        }
+
+        // Update fullName and email
+        user.updateByAdmin(
+                request.fullName() != null ? request.fullName() : user.getFullName(),
+                user.getRole(),
+                request.email() != null ? request.email() : user.getEmail()
+        );
+
+        User saved = userRepository.save(user);
+        return userMapper.toResponse(saved);
     }
 
     @Override

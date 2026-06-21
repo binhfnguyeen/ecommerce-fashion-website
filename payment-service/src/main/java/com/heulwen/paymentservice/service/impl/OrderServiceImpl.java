@@ -127,6 +127,11 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
+        if (order.getStatus() == OrderStatus.PAID || order.getStatus() == OrderStatus.COMPLETED) {
+            log.info("Order {} is already in {} status. Returning existing order (idempotent capture).", orderId, order.getStatus());
+            return orderMapper.toResponse(order);
+        }
+
         if (order.getStatus() != OrderStatus.PENDING) {
             throw new AppException(ErrorCode.INVALID_ORDER_STATUS);
         }
@@ -144,14 +149,17 @@ public class OrderServiceImpl implements OrderService {
             throw new AppException(ErrorCode.PAYPAL_CAPTURE_FAILED);
         }
 
-        // 2. Trừ tồn kho trong product-service cho tất cả mặt hàng
+        // 2. Deduct stock in product-service for all items
         for (OrderItem item : order.getItems()) {
             String reduceStockUrl = productServiceUrl + "/api/products/internal/" + item.getProductId() + "/reduce-stock?quantity=" + item.getQuantity();
             try {
                 restTemplate.put(reduceStockUrl, null);
-            } catch (Exception e) {
-                log.error("Failed to reduce stock for product ID: {} during order capture. Error: {}", item.getProductId(), e.getMessage());
+            } catch (HttpClientErrorException e) {
+                log.error("Failed to reduce stock for product ID: {} (HTTP {}): {}", item.getProductId(), e.getStatusCode(), e.getMessage());
                 throw new AppException(ErrorCode.PRODUCT_INACTIVE_OR_OUT_OF_STOCK);
+            } catch (Exception e) {
+                log.error("Communication error reducing stock for product ID: {} during capture. Error: {}", item.getProductId(), e.getMessage());
+                throw new AppException(ErrorCode.PAYPAL_CAPTURE_FAILED);
             }
         }
 

@@ -9,10 +9,6 @@ export const authService = {
       body: JSON.stringify({ username, password }),
     });
 
-    if (data.role !== 'ADMIN') {
-      throw new Error('Chỉ tài khoản Quản trị viên (Admin) mới có quyền đăng nhập hệ thống này!');
-    }
-
     const session: UserSession = {
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
@@ -27,6 +23,13 @@ export const authService = {
 
     window.dispatchEvent(new Event('auth-login'));
     return session;
+  },
+
+  async register(username: string, password: string, email: string, fullName: string): Promise<void> {
+    await apiFetch<any>('/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ username, password, email, fullName }),
+    });
   },
 
   getCurrentSession(): UserSession | null {

@@ -24,4 +24,16 @@ public class GlobalExceptionHandler {
                 .status(code.getStatusCode())
                 .body(errorBody);
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException ex) {
+        Map<String, Object> errorBody = new HashMap<>();
+        errorBody.put("code", 400);
+        errorBody.put("message", ex.getMessage());
+        errorBody.put("timestamp", ZonedDateTime.now());
+
+        return ResponseEntity
+                .badRequest()
+                .body(errorBody);
+    }
 }

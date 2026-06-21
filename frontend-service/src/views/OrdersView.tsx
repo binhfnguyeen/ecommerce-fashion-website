@@ -70,6 +70,24 @@ export const OrdersView: React.FC = () => {
     }
   };
 
+  const handleQuickStatusUpdate = async (orderId: number, newStatus: OrderStatus) => {
+    setUpdatingStatus(true);
+    setDrawerError('');
+    try {
+      const updated = await orderService.updateOrderStatus(orderId, newStatus);
+      fetchOrders(); // Refresh grid
+      if (selectedOrder && selectedOrder.id === orderId) {
+        setSelectedOrder(updated);
+      }
+    } catch (err: any) {
+      const errorMsg = err.message || 'Failed to update order status.';
+      setDrawerError(errorMsg);
+      alert(errorMsg);
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
   const handleCancelOrder = async () => {
     if (!selectedOrder) return;
     if (window.confirm(`Are you sure you want to cancel order #${selectedOrder.id}?`)) {
@@ -161,6 +179,7 @@ export const OrdersView: React.FC = () => {
                 <th>Order Date</th>
                 <th>Total Amount</th>
                 <th>Status</th>
+                <th style={{ width: '140px', textAlign: 'center' }}>Quick Action</th>
                 <th style={{ width: '100px', textAlign: 'center' }}>Details</th>
               </tr>
             </thead>
@@ -184,7 +203,48 @@ export const OrdersView: React.FC = () => {
                     </span>
                   </td>
                   <td style={{ textAlign: 'center' }}>
-                    <button className="action-icon-btn flex items-center justify-center" title="View details">
+                    {order.status === 'PENDING' && (
+                      <button
+                        className="btn btn-warning btn-sm"
+                        style={{ width: '100%', whiteSpace: 'nowrap', padding: '4px 8px' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleQuickStatusUpdate(order.id, 'PAID');
+                        }}
+                      >
+                        Confirm Paid
+                      </button>
+                    )}
+                    {order.status === 'PAID' && (
+                      <button
+                        className="btn btn-primary btn-sm"
+                        style={{ width: '100%', whiteSpace: 'nowrap', padding: '4px 8px' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleQuickStatusUpdate(order.id, 'SHIPPED');
+                        }}
+                      >
+                        Ship Order
+                      </button>
+                    )}
+                    {order.status === 'SHIPPED' && (
+                      <button
+                        className="btn btn-success btn-sm"
+                        style={{ width: '100%', whiteSpace: 'nowrap', padding: '4px 8px' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleQuickStatusUpdate(order.id, 'COMPLETED');
+                        }}
+                      >
+                        Complete
+                      </button>
+                    )}
+                    {(order.status === 'COMPLETED' || order.status === 'CANCELLED') && (
+                      <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>-</span>
+                    )}
+                  </td>
+                  <td style={{ textAlign: 'center' }}>
+                    <button className="action-icon-btn flex items-center justify-center" title="View details" style={{ margin: '0 auto' }}>
                       <Search style={{ fontSize: '18px' }} />
                     </button>
                   </td>
@@ -221,26 +281,53 @@ export const OrdersView: React.FC = () => {
               {/* Status Update Section */}
               <div className="drawer-section" style={{ background: 'var(--bg-primary)', padding: '16px', borderRadius: 'var(--radius-md)' }}>
                 <span className="drawer-section-title">Order Status</span>
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginTop: '8px' }}>
-                  <select
-                    className="filter-select"
-                    style={{ flex: 1 }}
-                    value={selectedOrder.status}
-                    onChange={handleStatusChange}
-                    disabled={updatingStatus || selectedOrder.status === 'CANCELLED'}
-                  >
-                    {ORDER_STATUSES.map(st => (
-                      <option key={st} value={st} disabled={st === 'CANCELLED' && selectedOrder.status !== 'PENDING' && selectedOrder.status !== 'PAID'}>
-                        {getStatusName(st)}
-                      </option>
-                    ))}
-                  </select>
+                
+                <div style={{ margin: '8px 0 14px' }}>
+                  <span className={`badge ${getStatusBadgeClass(selectedOrder.status)}`} style={{ fontSize: '13px', padding: '8px 16px' }}>
+                    Current Status: {getStatusName(selectedOrder.status)}
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
+                  {selectedOrder.status === 'PENDING' && (
+                    <button
+                      type="button"
+                      className="btn btn-warning"
+                      style={{ flex: 1, whiteSpace: 'nowrap' }}
+                      onClick={() => handleQuickStatusUpdate(selectedOrder.id, 'PAID')}
+                      disabled={updatingStatus}
+                    >
+                      Confirm Paid
+                    </button>
+                  )}
+                  {selectedOrder.status === 'PAID' && (
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      style={{ flex: 1, whiteSpace: 'nowrap' }}
+                      onClick={() => handleQuickStatusUpdate(selectedOrder.id, 'SHIPPED')}
+                      disabled={updatingStatus}
+                    >
+                      Ship Order
+                    </button>
+                  )}
+                  {selectedOrder.status === 'SHIPPED' && (
+                    <button
+                      type="button"
+                      className="btn btn-success"
+                      style={{ flex: 1, whiteSpace: 'nowrap' }}
+                      onClick={() => handleQuickStatusUpdate(selectedOrder.id, 'COMPLETED')}
+                      disabled={updatingStatus}
+                    >
+                      Complete Order
+                    </button>
+                  )}
 
                   {/* Cancel button if possible */}
                   {(selectedOrder.status === 'PENDING' || selectedOrder.status === 'PAID') && (
                     <button
                       type="button"
-                      className="btn btn-danger btn-sm"
+                      className="btn btn-danger"
                       onClick={handleCancelOrder}
                       disabled={updatingStatus}
                     >
@@ -248,6 +335,27 @@ export const OrdersView: React.FC = () => {
                     </button>
                   )}
                 </div>
+
+                {selectedOrder.status !== 'COMPLETED' && selectedOrder.status !== 'CANCELLED' && (
+                  <div style={{ marginTop: '16px', borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
+                    <label style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px', fontWeight: 600 }}>
+                      MANUAL STATUS CHANGE
+                    </label>
+                    <select
+                      className="filter-select"
+                      style={{ width: '100%' }}
+                      value={selectedOrder.status}
+                      onChange={handleStatusChange}
+                      disabled={updatingStatus}
+                    >
+                      {ORDER_STATUSES.map(st => (
+                        <option key={st} value={st} disabled={st === 'CANCELLED' && selectedOrder.status !== 'PENDING' && selectedOrder.status !== 'PAID'}>
+                          Change to: {getStatusName(st)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
 
               {/* Customer Details */}

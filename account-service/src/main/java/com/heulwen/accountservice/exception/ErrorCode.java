@@ -18,6 +18,7 @@ public enum ErrorCode {
     USER_DEACTIVATED(1009, "User account is deactivated.", HttpStatus.FORBIDDEN),
     INVALID_TOKEN(1010, "Refresh token is invalid or expired.", HttpStatus.UNAUTHORIZED),
     OTP_NOT_VERIFIED(1018, "OTP has not been verified yet.", HttpStatus.BAD_REQUEST),
+    ADDRESS_NOT_FOUND(1019, "Address not found.", HttpStatus.NOT_FOUND),
     ;
 
     private final int errorCode;

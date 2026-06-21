@@ -10,6 +10,13 @@ export const productService = {
     });
   },
 
+  async getProducts(search?: string, categoryId?: number, page = 0, size = 10): Promise<PageResponse<Product>> {
+    return apiFetch<PageResponse<Product>>('/api/products', {
+      method: 'GET',
+      params: { search, categoryId, page, size },
+    });
+  },
+
   async getProduct(id: number): Promise<Product> {
     return apiFetch<Product>(`/api/products/${id}`, {
       method: 'GET',

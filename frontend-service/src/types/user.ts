@@ -20,3 +20,21 @@ export interface AdminUpdateUserRequest {
   fullName: string;
   role: 'USER' | 'ADMIN';
 }
+
+export interface Address {
+  id: number;
+  userId: number;
+  addressName: string;
+  addressLine: string;
+  phone: string;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AddressRequest {
+  addressName: string;
+  addressLine: string;
+  phone: string;
+  isDefault?: boolean;
+}

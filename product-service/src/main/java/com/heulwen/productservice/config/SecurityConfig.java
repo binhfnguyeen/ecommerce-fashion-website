@@ -19,15 +19,16 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // Cho phép truy cập công khai vào API xem sản phẩm và danh mục (GET)
+                        // Public: read products and categories
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
-                        // Cho phép gọi các API nội bộ từ các microservice khác
+                        // Internal service-to-service calls (from payment-service) — must be before admin rules
+                        .requestMatchers("/api/products/internal/**").permitAll()
                         .requestMatchers("/api/internal/products/**").permitAll()
-                        // Các API thay đổi dữ liệu (POST, PUT, DELETE) chỉ dành cho Admin
+                        // Admin-only: create/update/delete public endpoints
                         .requestMatchers(HttpMethod.POST, "/api/products/**", "/api/categories/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/products/**", "/api/categories/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/products/admin/**", "/api/categories/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/products/**", "/api/categories/**").hasRole("ADMIN")
-                        // Các request khác yêu cầu đăng nhập
+                        // All other requests require authentication
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new GatewayHeaderFilter(), UsernamePasswordAuthenticationFilter.class)

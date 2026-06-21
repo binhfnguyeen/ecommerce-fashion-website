@@ -2,6 +2,7 @@ package com.heulwen.accountservice.controller;
 
 import com.heulwen.accountservice.api.request.AdminCreateUserRequest;
 import com.heulwen.accountservice.api.request.AdminUpdateUserRequest;
+import com.heulwen.accountservice.api.request.UpdateProfileRequest;
 import com.heulwen.accountservice.api.response.UserResponse;
 import com.heulwen.accountservice.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -64,5 +65,24 @@ public class UserController {
     public ResponseEntity<Void> activateUser(@PathVariable Long userId) {
         userService.activateUser(userId);
         return ResponseEntity.ok().build();
+    }
+
+    // Self-service: get own profile
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getMyProfile(
+            @RequestHeader("X-User-Id") Long userId
+    ) {
+        UserResponse response = userService.getUserProfile(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    // Self-service: update own profile (fullName, email, password)
+    @PutMapping("/me")
+    public ResponseEntity<UserResponse> updateMyProfile(
+            @RequestHeader("X-User-Id") Long userId,
+            @RequestBody UpdateProfileRequest request
+    ) {
+        UserResponse response = userService.updateProfile(userId, request);
+        return ResponseEntity.ok(response);
     }
 }

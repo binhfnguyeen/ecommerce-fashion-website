@@ -88,6 +88,12 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
     return {} as T;
   }
 
+  const contentType = response.headers.get('content-type');
+  const contentLength = response.headers.get('content-length');
+  if (!contentType?.includes('application/json') || contentLength === '0') {
+    return {} as T;
+  }
+
   return response.json() as Promise<T>;
 }
 

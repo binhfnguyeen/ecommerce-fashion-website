@@ -8,6 +8,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
@@ -93,8 +94,8 @@ public class PayPalServiceImpl implements PayPalService {
             Map<String, Object> applicationContext = new HashMap<>();
             applicationContext.put("brand_name", "Ecommerce Fashion Store");
             applicationContext.put("user_action", "PAY_NOW");
-            applicationContext.put("return_url", "http://localhost:3000/order-success?orderId=" + localOrderId);
-            applicationContext.put("cancel_url", "http://localhost:3000/order-cancel?orderId=" + localOrderId);
+            applicationContext.put("return_url", "http://localhost:5173/order-success?orderId=" + localOrderId);
+            applicationContext.put("cancel_url", "http://localhost:5173/order-cancel?orderId=" + localOrderId);
             body.put("application_context", applicationContext);
 
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
@@ -146,6 +147,16 @@ public class PayPalServiceImpl implements PayPalService {
                     return "COMPLETED".equalsIgnoreCase(status);
                 }
             }
+            return false;
+        } catch (HttpClientErrorException e) {
+            String body = e.getResponseBodyAsString();
+            // ORDER_ALREADY_CAPTURED means PayPal already captured this payment successfully.
+            // This happens on page refresh — treat it as success so we don't block the user.
+            if (body.contains("ORDER_ALREADY_CAPTURED")) {
+                log.warn("PayPal order {} was already captured previously. Treating as success.", paypalOrderId);
+                return true;
+            }
+            log.error("Error capturing PayPal order: {}", e.getMessage());
             return false;
         } catch (Exception e) {
             log.error("Error capturing PayPal order: {}", e.getMessage());

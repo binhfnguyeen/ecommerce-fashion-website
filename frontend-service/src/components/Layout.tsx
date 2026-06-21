@@ -17,6 +17,8 @@ export const Layout: React.FC = () => {
   useEffect(() => {
     if (!session) {
       navigate('/login');
+    } else if (session.role !== 'ADMIN') {
+      navigate('/');
     }
 
     const handleLogout = () => {
@@ -33,11 +35,11 @@ export const Layout: React.FC = () => {
   if (!session) return null;
 
   const menuItems = [
-    { path: '/', label: 'Dashboard', icon: <Dashboard /> },
-    { path: '/categories', label: 'Categories', icon: <Category /> },
-    { path: '/products', label: 'Products', icon: <Inventory /> },
-    { path: '/users', label: 'Users', icon: <People /> },
-    { path: '/orders', label: 'Orders', icon: <ReceiptLong /> },
+    { path: '/admin', label: 'Dashboard', icon: <Dashboard /> },
+    { path: '/admin/categories', label: 'Categories', icon: <Category /> },
+    { path: '/admin/products', label: 'Products', icon: <Inventory /> },
+    { path: '/admin/users', label: 'Users', icon: <People /> },
+    { path: '/admin/orders', label: 'Orders', icon: <ReceiptLong /> },
   ];
 
   const handleLogoutClick = () => {
@@ -49,7 +51,7 @@ export const Layout: React.FC = () => {
       {/* Sidebar */}
       <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-logo">
-          <span className="sidebar-logo-text">FASHION ADMIN</span>
+          <span className="sidebar-logo-text">LUXE FASHION</span>
         </div>
         <ul className="sidebar-menu">
           {menuItems.map(item => {
@@ -86,7 +88,7 @@ export const Layout: React.FC = () => {
               ☰
             </button>
             <div style={{ color: 'var(--text-secondary)', fontSize: '14px', fontWeight: 500 }}>
-              Fashion Shop Admin System
+              LUXE FASHION Admin System
             </div>
           </div>
           <div className="top-header-right">

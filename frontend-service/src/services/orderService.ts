@@ -44,5 +44,25 @@ export const orderService = {
     return apiFetch<ChartDataResponse[]>('/api/orders/statistics/chart', {
       method: 'GET',
     });
+  },
+
+  async checkout(request: { customerName: string; customerEmail: string; shippingAddress: string; items: { productId: number; quantity: number }[] }): Promise<{ orderId: number; paypalOrderId: string; approveUrl: string }> {
+    return apiFetch<{ orderId: number; paypalOrderId: string; approveUrl: string }>('/api/orders', {
+      method: 'POST',
+      body: JSON.stringify(request),
+    });
+  },
+
+  async captureOrder(orderId: number, token: string): Promise<any> {
+    return apiFetch<any>(`/api/orders/${orderId}/capture?token=${token}`, {
+      method: 'POST',
+    });
+  },
+
+  async getMyOrders(page = 0, size = 10): Promise<PageResponse<any>> {
+    return apiFetch<PageResponse<any>>('/api/orders/my-orders', {
+      method: 'GET',
+      params: { page, size },
+    });
   }
 };
