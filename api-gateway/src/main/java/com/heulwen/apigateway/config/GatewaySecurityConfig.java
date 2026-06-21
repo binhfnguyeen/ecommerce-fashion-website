@@ -29,6 +29,7 @@ public class GatewaySecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**", "/api/media/images/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/chatbot/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2

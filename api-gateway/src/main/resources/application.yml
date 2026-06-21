@@ -41,3 +41,8 @@ spring:
               uri: ${MEDIA_SERVICE_URL:http://localhost:8084}
               predicates:
                 - Path=/api/media/**
+
+            - id: chatbot-route
+              uri: ${AI_SERVICE_URL:http://localhost:8085}
+              predicates:
+                - Path=/api/chatbot/**
