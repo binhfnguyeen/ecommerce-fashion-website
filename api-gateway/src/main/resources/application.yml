@@ -5,7 +5,7 @@ spring:
   application:
     name: api-gateway
   jwt:
-    signerkey: ${JWT_SECRET:isxtj7Ez9VtK5s8+/jWnbGUAzo+/LaHlz8Py+7gT07bwtMSV3yfKDkNvDnfKoevA}
+    signerkey: ${JWT_SECRET}
 
   cloud:
     gateway:
