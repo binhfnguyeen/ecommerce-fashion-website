@@ -84,6 +84,16 @@ public class User {
         this.fullName = fullName != null ? fullName.trim() : null;
     }
 
+    public void updateByAdmin(String fullName, UserRole role, String email) {
+        this.fullName = fullName != null ? fullName.trim() : null;
+        if (role != null) {
+            this.role = role;
+        }
+        if (email != null && !email.isBlank()) {
+            this.email = email.trim().toLowerCase();
+        }
+    }
+
     public void deactivate() {
         this.active = false;
     }
