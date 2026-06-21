@@ -20,9 +20,9 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
-          env:
-            - name: JWT_SECRET
-              value: "isxtj7Ez9VtK5s8+/jWnbGUAzo+/LaHlz8Py+7gT07bwtMSV3yfKDkNvDnfKoevA"
+          envFrom:
+            - secretRef:
+                name: app-secrets
 ---
 apiVersion: v1
 kind: Service

@@ -39,13 +39,9 @@ spec:
           image: postgres:18-alpine
           ports:
             - containerPort: 5432
-          env:
-            - name: POSTGRES_DB
-              value: postgres
-            - name: POSTGRES_USER
-              value: app_user
-            - name: POSTGRES_PASSWORD
-              value: "123456"
+          envFrom:
+            - secretRef:
+                name: app-secrets
           volumeMounts:
             - mountPath: /var/lib/postgresql
               name: postgres-storage
