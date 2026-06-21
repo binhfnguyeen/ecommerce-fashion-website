@@ -88,30 +88,6 @@ The `api-gateway` performs path-based authorization. When requests pass through 
 
 ## 5. Main Environment Variables (`.env`)
 
-```properties
-# JWT Configuration
-JWT_SECRET=isxtj7Ez9VtK5s8+/jWnbGUAzo+/LaHlz8Py+7gT07bwtMSV3yfKDkNvDnfKoevA
-
-# Database Setup (Docker-compose)
-POSTGRES_USER=app_user
-POSTGRES_PASSWORD=123456
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5433
-POSTGRES_DB=postgres
-
-# Email Settings (OTP Generation)
-EMAIL_USERNAME=heulwentech@gmail.com
-EMAIL_PASSWORD=rlmr unqo famc fhnu
-
-# PayPal REST SDK Credentials
-PAYPAL_CLIENT_ID=AZHUN6GO8x08aEMFgFKoGD5FjJnuTrd7BKf-YR-8D-1II0xuKyB_g4NMBWf70LWR_r94QgKgxJ5HtKJi
-PAYPAL_CLIENT_SECRET=EOwM1OcMkw6j0oAKdwuEYwC8QUvwGiDbc8PQlYtuMP0autnVNmaiL4-dH7BccQA2EiQ6FucfFugyOBGg
-PAYPAL_MODE=sandbox
-
-# Gemini API Key (For AI Service chatbot)
-GEMINI_API_KEY=YOUR_GEMINI_API_KEY
-```
-
 ---
 
 ## 6. How to Start the System
