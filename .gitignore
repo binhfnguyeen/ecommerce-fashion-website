@@ -1,36 +1,54 @@
-# OS files
-.DS_Store
-Thumbs.db
+# Operating System Files (Global)
+**/.DS_Store
+**/Thumbs.db
+**/ehthumbs.db
+**/desktop.ini
 db.sqlite3
 
-# IDEs and editors
-.idea/
-*.iml
-.classpath
-.project
-.settings/
-.vscode/
-*.sublime-project
-*.sublime-workspace
+# IDEs and Editors (Global)
+**/.idea/
+**/*.iml
+**/*.iws
+**/*.ipr
+**/.classpath
+**/.project
+**/.settings/
+**/.vscode/
+**/*.sublime-project
+**/*.sublime-workspace
+**/.apt_generated
+**/.factorypath
+**/.springBeans
+**/.sts4-cache
 
-# Maven build outputs
+# Java / Maven Build Outputs (Global)
 **/target/
+**/build/
 **/release.properties
 **/pom.xml.releaseBackup
 **/pom.xml.tag
 **/pom.xml.next
 **/pom.xml.versionsBackup
 
-# Maven wrapper jar (can be downloaded automatically)
+# Maven Wrapper binaries
 **/.mvn/wrapper/maven-wrapper.jar
 
-# Local configurations and credentials
-.env
-docker-compose.override.yml
+# Node / Frontend Build Outputs (Global)
+**/node_modules/
+**/dist/
+**/dist-ssr/
+**/.eslintcache
 
-# Log files
-*.log
+# Local configurations and credentials (Global)
+**/.env
+**/*.local
+**/docker-compose.override.yml
 
-# Media uploads
+# Log files (Global)
+**/*.log
+**/logs/
+
+# Media uploads and transient data (Global)
 **/uploads/
+
 
