@@ -9,6 +9,8 @@ import com.heulwen.paymentservice.api.response.RevenueResponse;
 import com.heulwen.paymentservice.domain.enums.OrderStatus;
 import com.heulwen.paymentservice.domain.models.Order;
 import com.heulwen.paymentservice.domain.models.OrderItem;
+import com.heulwen.paymentservice.event.OrderPaidEvent;
+import com.heulwen.paymentservice.event.StockDeductItem;
 import com.heulwen.paymentservice.exception.AppException;
 import com.heulwen.paymentservice.exception.ErrorCode;
 import com.heulwen.paymentservice.mapper.OrderMapper;
@@ -21,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
@@ -40,6 +43,7 @@ public class OrderServiceImpl implements OrderService {
     private final PayPalService payPalService;
     private final OrderMapper orderMapper;
     private final RestTemplate restTemplate;
+    private final KafkaTemplate<String, OrderPaidEvent> kafkaTemplate;
 
     @Value("${product.service.url}")
     private String productServiceUrl;
@@ -150,17 +154,16 @@ public class OrderServiceImpl implements OrderService {
         }
 
         // 2. Deduct stock in product-service for all items
-        for (OrderItem item : order.getItems()) {
-            String reduceStockUrl = productServiceUrl + "/api/products/internal/" + item.getProductId() + "/reduce-stock?quantity=" + item.getQuantity();
-            try {
-                restTemplate.put(reduceStockUrl, null);
-            } catch (HttpClientErrorException e) {
-                log.error("Failed to reduce stock for product ID: {} (HTTP {}): {}", item.getProductId(), e.getStatusCode(), e.getMessage());
-                throw new AppException(ErrorCode.PRODUCT_INACTIVE_OR_OUT_OF_STOCK);
-            } catch (Exception e) {
-                log.error("Communication error reducing stock for product ID: {} during capture. Error: {}", item.getProductId(), e.getMessage());
-                throw new AppException(ErrorCode.PAYPAL_CAPTURE_FAILED);
-            }
+        List<StockDeductItem> deductItems = order.getItems().stream()
+                .map(item -> new StockDeductItem(item.getProductId(), item.getQuantity())).toList();
+
+        OrderPaidEvent event = new OrderPaidEvent(order.getId(), paypalOrderId, deductItems);
+
+        try {
+            kafkaTemplate.send("order-payment-topic", String.valueOf(order.getId()), event);
+            log.info("Sent OrderPaidEvent to Kafka for order ID: {}", order.getId());
+        } catch (Exception e) {
+            log.error("Failed to publish OrderPaidEvent to Kafka for order ID: {}", order.getId(), e);
         }
 
         // 3. Cập nhật trạng thái đơn hàng thành PAID

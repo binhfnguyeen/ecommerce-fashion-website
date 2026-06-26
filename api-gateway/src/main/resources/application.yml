@@ -13,36 +13,41 @@ spring:
         webmvc:
           routes:
             - id: auth-public-route
-              uri: ${ACCOUNT_SERVICE_URL:http://account-service:8080}
+              uri: lb://Account-Service
               predicates:
                 - Path=/api/auth/**
 
             - id: user-secured-route
-              uri: ${ACCOUNT_SERVICE_URL:http://account-service:8080}
+              uri: lb://Account-Service
               predicates:
                 - Path=/api/users/**
 
             - id: product-route
-              uri: ${PRODUCT_SERVICE_URL:http://product-service:8080}
+              uri: lb://Product-Service
               predicates:
                 - Path=/api/products/**
 
             - id: category-route
-              uri: ${PRODUCT_SERVICE_URL:http://product-service:8080}
+              uri: lb://Product-Service
               predicates:
                 - Path=/api/categories/**
 
             - id: payment-route
-              uri: ${PAYMENT_SERVICE_URL:http://payment-service:8080}
+              uri: lb://Payment-Service
               predicates:
                 - Path=/api/orders/**
 
             - id: media-route
-              uri: ${MEDIA_SERVICE_URL:http://localhost:8084}
+              uri: lb://Media-Service
               predicates:
                 - Path=/api/media/**
 
             - id: chatbot-route
-              uri: ${AI_SERVICE_URL:http://localhost:8085}
+              uri: lb://AI-Service
               predicates:
                 - Path=/api/chatbot/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
